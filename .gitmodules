@@ -1,0 +1,42 @@
+[submodule "extern/audio"]
+	path = extern/audio
+	url = https://github.com/Lomiredos/eliott-audio
+[submodule "extern/ecs"]
+	path = extern/ecs
+	url = https://github.com/Lomiredos/eliott-ecs
+[submodule "extern/input"]
+	path = extern/input
+	url = https://github.com/Lomiredos/eliott-input
+[submodule "extern/math"]
+	path = extern/math
+	url = https://github.com/Lomiredos/eliott-math
+[submodule "extern/physics"]
+	path = extern/physics
+	url = https://github.com/Lomiredos/eliott-physics
+[submodule "extern/renderer"]
+	path = extern/renderer
+	url = https://github.com/Lomiredos/eliott-renderer
+[submodule "extern/tmx-parser"]
+	path = extern/tmx-parser
+	url = https://github.com/Lomiredos/eliott-tmx-parser
+[submodule "extern/eliott-audio"]
+	path = extern/eliott-audio
+	url = https://github.com/Lomiredos/eliott-audio
+[submodule "extern/eliott-ecs"]
+	path = extern/eliott-ecs
+	url = https://github.com/Lomiredos/eliott-ecs
+[submodule "extern/eliott-input"]
+	path = extern/eliott-input
+	url = https://github.com/Lomiredos/eliott-input
+[submodule "extern/eliott-math"]
+	path = extern/eliott-math
+	url = https://github.com/Lomiredos/eliott-math
+[submodule "extern/eliott-physics"]
+	path = extern/eliott-physics
+	url = https://github.com/Lomiredos/eliott-physics
+[submodule "extern/eliott-renderer"]
+	path = extern/eliott-renderer
+	url = https://github.com/Lomiredos/eliott-renderer
+[submodule "extern/eliott-tmx-parser"]
+	path = extern/eliott-tmx-parser
+	url = https://github.com/Lomiredos/eliott-tmx-parser
