@@ -1,24 +1,4 @@
-[submodule "extern/audio"]
-	path = extern/audio
-	url = https://github.com/Lomiredos/eliott-audio
-[submodule "extern/ecs"]
-	path = extern/ecs
-	url = https://github.com/Lomiredos/eliott-ecs
-[submodule "extern/input"]
-	path = extern/input
-	url = https://github.com/Lomiredos/eliott-input
-[submodule "extern/math"]
-	path = extern/math
-	url = https://github.com/Lomiredos/eliott-math
-[submodule "extern/physics"]
-	path = extern/physics
-	url = https://github.com/Lomiredos/eliott-physics
-[submodule "extern/renderer"]
-	path = extern/renderer
-	url = https://github.com/Lomiredos/eliott-renderer
-[submodule "extern/tmx-parser"]
-	path = extern/tmx-parser
-	url = https://github.com/Lomiredos/eliott-tmx-parser
+
 [submodule "extern/eliott-audio"]
 	path = extern/eliott-audio
 	url = https://github.com/Lomiredos/eliott-audio
