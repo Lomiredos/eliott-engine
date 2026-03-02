@@ -109,17 +109,18 @@ Eliott, étudiant GTECH1 à Gaming Campus Lyon. Il apprend le développement de 
 ### 8. `eliott-engine`
 - **Rôle** : Moteur principal, assemble tous les modules
 - **Dépendances** : tous les submodules + SDL3
-- **Expose** : `Engine`, `Scene`, `SceneManager`
+- **Expose** : `Engine`, `Scene`, `SceneManager`, `Timer`
 - **Status** : 🟡 En cours
-- **Note** : CMakeLists.txt créé (`add_library STATIC`, tous les submodules via `add_subdirectory`, `target_link_libraries PUBLIC`).
+- **Note** : CMakeLists.txt fonctionnel (`add_library STATIC`, sources `Engine.cpp`+`Timer.cpp`, `target_link_libraries PUBLIC`, `SDL3::SDL3`).
   Portabilité multi-compilateur via `CMakePresets.json` (preset `mingw` + preset `msvc`, `$env{VCPKG_ROOT}` pour chemin vcpkg).
   Script `.bat` de setup école prévu (clone vcpkg, install dépendances, configure cmake).
-  **Architecture décidée** :
-  - `Engine` : possède `Renderer`. Init/shutdown `InputManager` + `AudioManager` (singletons). GameLoop = `Engine::run()`.
+  **Architecture implémentée** :
+  - `Engine` : possède `Renderer` (`unique_ptr`). Init/shutdown `InputManager` + `AudioManager` (singletons). GameLoop = `Engine::run()`. `quit()` à compléter (SDL_Quit).
   - `Scene` : classe de base abstraite. Possède `ee::ecs::World` + `ee::physics::PhysicsWorld`.
     Méthodes virtuelles : `onEnter()`, `onExit()`, `onEvent(SDL_Event&)`, `onUpdate(float dt)`, `onRender()`.
     `SDL_Event` exposé directement (pas wrappé). Destructeur `virtual`. Copy/move supprimés.
-  - `SceneManager` : gère les transitions entre scènes.
+  - `SceneManager` : `unordered_map<SceneId, unique_ptr<Scene>>`. `addScene(unique_ptr<Scene>)` retourne `SceneId`. `getCurrentScene()` retourne `Scene&`.
+  - `Timer` : chrono sans dépendance externe (`<chrono>` + `<thread>`). `Start()`/`End()` retournent `float` ms. `Sleep(int ms)`.
   - Pas de classe `GameLoop` séparée → `Engine::run()` suffit.
 
 ---
@@ -198,9 +199,10 @@ Phase 4 — Assemblage
     ✅ .gitignore (build/, .vs/, out/, *.exe, *.a, *.o, *.obj)
     🔴 CMakePresets.json (mingw + msvc, $env{VCPKG_ROOT})
     🔴 Script setup école (.bat)
-    🔴 Scene.hpp (classe abstraite, virtual onEnter/onExit/onEvent/onUpdate/onRender)
-    🔴 Engine.hpp / Engine.cpp (run(), owns Renderer, init singletons)
-    🔴 SceneManager.hpp
+    ✅ Scene.hpp (classe abstraite, virtual onEnter/onExit/onEvent/onUpdate/onRender)
+    ✅ Engine.hpp / Engine.cpp (run(), owns Renderer) — Engine::quit() à compléter
+    ✅ SceneManager.hpp
+    ✅ Timer.hpp / Timer.cpp (chrono, Start/End/Sleep)
 
 Phase 5 — Validation
   🔴 Mini-jeu de test avec map Tiled
@@ -401,6 +403,15 @@ Aucune décision en suspens.
              CMakePresets.json structure, $env{} dans presets, ABI incompatibilité MSVC/MinGW,
              branches git ≠ configurations de build.
              Prochaine session : CMakePresets.json + script .bat + début Engine/Scene.
+
+[2026-02-26] Session 16 — eliott-engine compile.
+             CMakeLists.txt corrigé : INTERFACE → PUBLIC (target_link_libraries),
+             Timer.cpp ajouté aux sources, SDL3::SDL3 ajouté (casse correcte).
+             AudioManager.hpp corrigé : struct ma_sound_group (forward declaration invalide)
+             → typedef ma_sound ma_sound_group (ma_sound_group est un alias dans miniaudio,
+             pas une struct réelle — forward declaration impossible).
+             Tout compile. Engine/Scene/SceneManager/Timer implémentés.
+             Reste : CMakePresets.json, script .bat école, Engine::quit() (SDL_Quit + cleanup).
 
 [2026-02-26] Session 15 — TextureManager + architecture Engine décidée.
              eliott-renderer : TextureManager ajouté (membre de Renderer, pas singleton).
