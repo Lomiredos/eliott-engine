@@ -1,0 +1,35 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "mingw",
+            "displayName": "MinGW x64 (Gaming Campus)",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/mingw",
+            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-mingw-static",
+                "CMAKE_PREFIX_PATH": "$env{VCPKG_ROOT}/installed/x64-mingw-static",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msvc",
+            "displayName": "MSVC x64",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/build/msvc",
+            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+                "CMAKE_PREFIX_PATH": "$env{VCPKG_ROOT}/installed/x64-windows-static",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
+}

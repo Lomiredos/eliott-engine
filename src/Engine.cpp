@@ -10,12 +10,11 @@ void ee::Engine::run()
     Timer T;
     float start = T.Start();
 
-    SDL_Event event;
     while (m_isActive)
     {
-        SDL_PollEvent(&event);
-        m_sceneManager.getCurrentScene().onEvent(event);
-
+        
+        if (!ee::input::InputManager::getInstance().update())
+            m_isActive = false;
         float end = T.End();
         float deltaTime = (end - start) / 1000.0f;
         start = T.Start();
