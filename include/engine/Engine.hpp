@@ -22,7 +22,8 @@ namespace ee
         }
 
         void run();
-
         void quit();
+
+        ee::SceneId addScene(std::unique_ptr<ee::Scene> _scene);
     };
 }

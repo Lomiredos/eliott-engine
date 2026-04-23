@@ -38,3 +38,7 @@ void ee::Engine::quit()
     SDL_Quit();
 }
 
+ee::SceneId ee::Engine::addScene(std::unique_ptr<ee::Scene> _scene)
+{
+    return m_sceneManager.addScene(std::move(_scene));
+}
