@@ -7,25 +7,73 @@ echo ============================================
 echo.
 
 :: -----------------------------------------------
+:: 0. Verifier / Installer MinGW (WinLibs UCRT)
+:: -----------------------------------------------
+set "MINGW_ROOT=C:\Dev\mingw64"
+set "MINGW_BIN=%MINGW_ROOT%\bin"
+set "WINLIBS_ZIP=C:\Dev\mingw64.zip"
+set "WINLIBS_URL=https://github.com/brechtsanders/winlibs_mingw/releases/download/15.2.0posix-14.0.0-ucrt-r7/winlibs-x86_64-posix-seh-gcc-15.2.0-mingw-w64ucrt-14.0.0-r7.zip"
+
+if exist "%MINGW_BIN%\g++.exe" goto mingw_ok
+
+echo [*] MinGW non detecte. Recuperation de la derniere version WinLibs...
+if not exist "C:\Dev" mkdir "C:\Dev"
+
+echo [i] URL : !WINLIBS_URL!
+echo [*] Telechargement en cours (environ 255 Mo)...
+curl -L -o "%WINLIBS_ZIP%" "!WINLIBS_URL!"
+if errorlevel 1 (
+    echo [ERREUR] Echec du telechargement de WinLibs.
+    pause
+    exit /b 1
+)
+echo [+] Telechargement OK.
+
+echo [*] Extraction de MinGW dans C:\Dev\ ...
+tar -xf "%WINLIBS_ZIP%" -C "C:\Dev"
+if errorlevel 1 (
+    echo [ERREUR] Echec de l'extraction.
+    pause
+    exit /b 1
+)
+del "%WINLIBS_ZIP%"
+echo [+] MinGW installe dans %MINGW_ROOT%.
+echo.
+goto mingw_suite
+
+:mingw_ok
+echo [+] MinGW deja present dans %MINGW_ROOT%.
+echo.
+
+:mingw_suite
+:: Ajouter MinGW au PATH pour cette session
+set "PATH=%MINGW_BIN%;%PATH%"
+
+:: Rendre le PATH permanent (USER, sans admin)
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set "USER_PATH=%%B"
+echo %USER_PATH% | find /i "%MINGW_BIN%" >nul
+if errorlevel 1 (
+    setx PATH "%MINGW_BIN%;%USER_PATH%" >nul
+    echo [i] MinGW ajoute au PATH permanent.
+)
+echo.
+
+:: -----------------------------------------------
 :: 1. Determiner VCPKG_ROOT
-::    Si la variable d'env n'est pas definie,
-::    on utilise C:\Dev\vcpkg par defaut
 :: -----------------------------------------------
 if not defined VCPKG_ROOT (
     echo [!] VCPKG_ROOT non defini. Utilisation de C:\Dev\vcpkg par defaut.
     set "VCPKG_ROOT=C:\Dev\vcpkg"
 )
 echo [i] VCPKG_ROOT = %VCPKG_ROOT%
-
-:: Rendre VCPKG_ROOT permanent (USER) pour VSCode et les prochains terminaux
 setx VCPKG_ROOT "%VCPKG_ROOT%" >nul
 echo [i] VCPKG_ROOT enregistre en variable d'environnement permanente.
 echo.
 
 :: -----------------------------------------------
-:: 2. Cloner vcpkg si le dossier n'existe pas
+:: 2. Cloner vcpkg
 :: -----------------------------------------------
-if not exist "%VCPKG_ROOT%\" (
+if not exist "%VCPKG_ROOT%" (
     echo [*] Clonage de vcpkg dans %VCPKG_ROOT% ...
     git clone https://github.com/microsoft/vcpkg.git "%VCPKG_ROOT%"
     if errorlevel 1 (
@@ -38,7 +86,7 @@ if not exist "%VCPKG_ROOT%\" (
 )
 
 :: -----------------------------------------------
-:: 3. Bootstrapper vcpkg si vcpkg.exe n'existe pas
+:: 3. Bootstrapper vcpkg
 :: -----------------------------------------------
 if not exist "%VCPKG_ROOT%\vcpkg.exe" (
     echo [*] Bootstrap de vcpkg...
@@ -56,7 +104,7 @@ if not exist "%VCPKG_ROOT%\vcpkg.exe" (
 )
 
 :: -----------------------------------------------
-:: 4. Installer les dependances (MinGW statique)
+:: 4. Installer les dependances
 :: -----------------------------------------------
 echo [*] Installation des dependances (x64-mingw-static)...
 echo     - sdl3
@@ -78,19 +126,17 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-echo.
 echo [+] Dependances installees.
 echo.
 
 :: -----------------------------------------------
-:: 5. Configurer CMake avec le preset mingw
+:: 5. Configurer CMake
 :: -----------------------------------------------
 echo [*] Configuration CMake (preset mingw)...
 cmake --preset mingw
-
 if errorlevel 1 (
     echo [ERREUR] Echec de la configuration CMake.
-    echo Verifiez que CMake 3.20+ et MinGW sont installes et dans le PATH.
+    echo Verifiez que CMake 3.20+ est installe et dans le PATH.
     pause
     exit /b 1
 )
