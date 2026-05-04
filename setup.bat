@@ -106,6 +106,20 @@ if not exist "%VCPKG_ROOT%\vcpkg.exe" (
 :: -----------------------------------------------
 :: 4. Installer les dependances
 :: -----------------------------------------------
+echo Quel compilateur voulez-vous utiliser ?
+echo   1) MinGW (VSCode / ligne de commande)
+echo   2) MSVC  (Visual Studio 2022)
+echo.
+set /p CHOIX="Votre choix (1 ou 2) : "
+echo.
+
+if "%CHOIX%"=="1" goto install_mingw
+if "%CHOIX%"=="2" goto install_msvc
+echo [ERREUR] Choix invalide. Relancez le script.
+pause
+exit /b 1
+
+:install_mingw
 echo [*] Installation des dependances (x64-mingw-static)...
 echo     - sdl3
 echo     - sdl3-image
@@ -129,9 +143,6 @@ if errorlevel 1 (
 echo [+] Dependances installees.
 echo.
 
-:: -----------------------------------------------
-:: 5. Configurer CMake
-:: -----------------------------------------------
 echo [*] Configuration CMake (preset mingw)...
 cmake --preset mingw
 if errorlevel 1 (
@@ -149,4 +160,50 @@ echo    Pour compiler : cmake --build build/mingw
 echo ============================================
 echo.
 pause
+goto fin
+
+:install_msvc
+echo [*] Installation des dependances (x64-windows-static)...
+echo     - sdl3
+echo     - sdl3-image
+echo     - tinyxml2
+echo     - doctest
+echo     - miniaudio
+echo.
+
+"%VCPKG_ROOT%\vcpkg.exe" install ^
+    sdl3:x64-windows-static ^
+    sdl3-image:x64-windows-static ^
+    tinyxml2:x64-windows-static ^
+    doctest:x64-windows-static ^
+    miniaudio:x64-windows-static
+
+if errorlevel 1 (
+    echo [ERREUR] Echec de l'installation des dependances.
+    pause
+    exit /b 1
+)
+echo [+] Dependances installees.
+echo.
+
+echo [*] Configuration CMake (preset msvc)...
+cmake --preset msvc
+if errorlevel 1 (
+    echo [ERREUR] Echec de la configuration CMake.
+    echo Verifiez que Visual Studio 2022 et CMake 3.20+ sont installes.
+    pause
+    exit /b 1
+)
+
+echo.
+echo ============================================
+echo    Setup termine !
+echo    Ouvrez Visual Studio 2022, puis :
+echo    File ^> Open ^> CMake...
+echo    Selectionnez le CMakeLists.txt racine.
+echo ============================================
+echo.
+pause
+
+:fin
 endlocal
