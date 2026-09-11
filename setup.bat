@@ -59,6 +59,52 @@ if errorlevel 1 (
 echo.
 
 :: -----------------------------------------------
+:: 0bis. Verifier / Installer CMake
+:: -----------------------------------------------
+set "CMAKE_VERSION=3.30.5"
+set "CMAKE_ROOT=C:\Dev\cmake"
+set "CMAKE_BIN=%CMAKE_ROOT%\bin"
+set "CMAKE_ZIP=C:\Dev\cmake.zip"
+set "CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v%CMAKE_VERSION%/cmake-%CMAKE_VERSION%-windows-x86_64.zip"
+
+where cmake >nul 2>nul && goto cmake_ok
+if exist "%CMAKE_BIN%\cmake.exe" goto cmake_local
+
+echo [*] CMake non detecte. Telechargement (version %CMAKE_VERSION%)...
+curl -L -o "%CMAKE_ZIP%" "%CMAKE_URL%"
+if errorlevel 1 (
+    echo [ERREUR] Echec du telechargement de CMake.
+    pause
+    exit /b 1
+)
+echo [*] Extraction de CMake dans %CMAKE_ROOT% ...
+tar -xf "%CMAKE_ZIP%" -C "C:\Dev"
+if errorlevel 1 (
+    echo [ERREUR] Echec de l'extraction de CMake.
+    pause
+    exit /b 1
+)
+move "C:\Dev\cmake-%CMAKE_VERSION%-windows-x86_64" "%CMAKE_ROOT%" >nul
+del "%CMAKE_ZIP%"
+echo [+] CMake installe dans %CMAKE_ROOT%.
+
+:cmake_local
+set "PATH=%CMAKE_BIN%;%PATH%"
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set "USER_PATH=%%B"
+echo %USER_PATH% | find /i "%CMAKE_BIN%" >nul
+if errorlevel 1 (
+    setx PATH "%CMAKE_BIN%;%USER_PATH%" >nul
+    echo [i] CMake ajoute au PATH permanent.
+)
+goto cmake_done
+
+:cmake_ok
+echo [+] CMake deja present dans le PATH.
+
+:cmake_done
+echo.
+
+:: -----------------------------------------------
 :: 1. Determiner VCPKG_ROOT
 :: -----------------------------------------------
 if not defined VCPKG_ROOT (
@@ -122,7 +168,7 @@ exit /b 1
 :install_mingw
 echo [*] Installation des dependances (x64-mingw-static)...
 echo     - sdl3
-echo     - sdl3-image
+echo     - sdl3-image[png]
 echo     - tinyxml2
 echo     - doctest
 echo     - miniaudio
@@ -130,10 +176,10 @@ echo.
 
 "%VCPKG_ROOT%\vcpkg.exe" install ^
     sdl3:x64-mingw-static ^
-    sdl3-image:x64-mingw-static ^
+    "sdl3-image[core,png]:x64-mingw-static" ^
     tinyxml2:x64-mingw-static ^
     doctest:x64-mingw-static ^
-    miniaudio:x64-mingw-static
+    miniaudio:x64-mingw-static --recurse
 
 if errorlevel 1 (
     echo [ERREUR] Echec de l'installation des dependances.
@@ -165,7 +211,7 @@ goto fin
 :install_msvc
 echo [*] Installation des dependances (x64-windows-static)...
 echo     - sdl3
-echo     - sdl3-image
+echo     - sdl3-image[png]
 echo     - tinyxml2
 echo     - doctest
 echo     - miniaudio
@@ -173,10 +219,10 @@ echo.
 
 "%VCPKG_ROOT%\vcpkg.exe" install ^
     sdl3:x64-windows-static ^
-    sdl3-image:x64-windows-static ^
+    "sdl3-image[core,png]:x64-windows-static" ^
     tinyxml2:x64-windows-static ^
     doctest:x64-windows-static ^
-    miniaudio:x64-windows-static
+    miniaudio:x64-windows-static --recurse
 
 if errorlevel 1 (
     echo [ERREUR] Echec de l'installation des dependances.
