@@ -25,14 +25,10 @@
             "generator": "Visual Studio 17 2022",
             "architecture": "x64",
             "binaryDir": "${sourceDir}/build/msvc",
-            "environment": {
-                "VCPKG_ROOT": "C:/Dev/vcpkg"
-            },
             "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
             "cacheVariables": {
                 "VCPKG_TARGET_TRIPLET": "x64-windows-static",
-                "CMAKE_PREFIX_PATH": "C:/Dev/vcpkg/installed/x64-windows-static",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_PREFIX_PATH": "$env{VCPKG_ROOT}/installed/x64-windows-static"
             }
         }
     ]
