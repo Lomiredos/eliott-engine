@@ -30,5 +30,6 @@ namespace ee
         
         ee::SceneManager& getSceneManager();
         ee::SceneId addScene(std::unique_ptr<ee::Scene> _scene);
+        void setCurrentScene(ee::SceneId _id);
     };
 }

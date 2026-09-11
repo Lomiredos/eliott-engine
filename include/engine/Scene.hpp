@@ -32,15 +32,22 @@ namespace ee
 
         virtual ~Scene() = default;
 
-        virtual void onEnter() {}
+        virtual void onEnter(ee::renderer::Renderer &_renderer) {}
         virtual void onExit() {}
         virtual void onEvent(SDL_Event &_e) {}
         virtual void onUpdate(float _dt) {}
         virtual void onRender(ee::renderer::Renderer &_renderer) {}
 
-        // Appele par l'Engine : dessine les sprites de l'ECS, puis le rendu custom.
+        void update(float _dt)
+        {
+            m_world.flush();
+            onUpdate(_dt);
+            m_physicsWorld.update(_dt);
+        }
+
         void draw(ee::renderer::Renderer &_renderer)
         {
+            m_world.flush();
             m_spriteRenderer.render(_renderer, m_camera);
             onRender(_renderer);
         }
