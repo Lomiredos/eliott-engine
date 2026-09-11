@@ -15,7 +15,7 @@ void ee::Engine::run()
         
         if (!ee::input::InputManager::getInstance().update())
             m_isActive = false;
-            
+
         float end = T.End();
         float deltaTime = (end - start) / 1000.0f;
         start = T.Start();
@@ -37,6 +37,10 @@ void ee::Engine::run()
 void ee::Engine::quit()
 {
     SDL_Quit();
+}
+
+ee::SceneManager& ee::Engine::getSceneManager(){
+    return m_sceneManager;
 }
 
 ee::renderer::Renderer &ee::Engine::getRenderer()

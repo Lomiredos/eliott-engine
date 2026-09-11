@@ -22,13 +22,13 @@ namespace ee
         }
 
 
-        ee::SceneManager& getSceneManager() const {return m_sceneManager;}
-
+        
         void run();
         void quit();
-
+        
         ee::renderer::Renderer& getRenderer();
-
+        
+        ee::SceneManager& getSceneManager();
         ee::SceneId addScene(std::unique_ptr<ee::Scene> _scene);
     };
 }
