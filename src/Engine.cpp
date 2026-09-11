@@ -13,9 +13,11 @@ void ee::Engine::run()
     SDL_Event event;
     while (m_isActive)
     {
-        SDL_PollEvent(&event);
-        m_sceneManager.getCurrentScene().onEvent(event);
-
+        while (SDL_PollEvent(&event)){
+            if (event.type == SDL_EVENT_QUIT)
+                m_isActive = false;
+            m_sceneManager.getCurrentScene().onEvent(event);
+        }
         float end = T.End();
         float deltaTime = (end - start) / 1000.0f;
         start = T.Start();

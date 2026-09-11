@@ -21,8 +21,10 @@ namespace ee
             m_targetFPS = _targetFPS;
         }
 
-        void run();
 
+        ee::SceneManager getSceneManager() const {return m_sceneManager;}
+
+        void run();
         void quit();
     };
 }
