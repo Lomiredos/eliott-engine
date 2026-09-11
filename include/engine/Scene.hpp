@@ -7,6 +7,7 @@
 #include "renderer/Renderer.hpp"
 #include "renderer/Camera.hpp"
 #include "renderer/SpriteRenderer.hpp"
+#include "animation/Animator.hpp"
 
 namespace ee
 {
@@ -18,6 +19,7 @@ namespace ee
         ee::physics::PhysicsWorld m_physicsWorld;
         ee::renderer::Camera m_camera;
         ee::renderer::SpriteRenderer m_spriteRenderer;
+        ee::animation::Animator m_animator;
 
         Scene(const Scene &) = delete;
         Scene &operator=(const Scene &) = delete;
@@ -26,7 +28,8 @@ namespace ee
         Scene(ee::math::Rect<float> _bounds)
             : m_physicsWorld(m_world, _bounds),
               m_camera(0, 0, _bounds.getSize().x, _bounds.getSize().y),
-              m_spriteRenderer(m_world)
+              m_spriteRenderer(m_world),
+              m_animator(m_world)
         {
         }
 
@@ -42,6 +45,7 @@ namespace ee
         {
             m_world.flush();
             onUpdate(_dt);
+            m_animator.update(_dt);
             m_physicsWorld.update(_dt);
         }
 

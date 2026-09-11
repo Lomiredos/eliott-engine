@@ -172,6 +172,7 @@ echo     - sdl3-image[png]
 echo     - tinyxml2
 echo     - doctest
 echo     - miniaudio
+echo     - nlohmann-json
 echo.
 
 "%VCPKG_ROOT%\vcpkg.exe" install ^
@@ -179,6 +180,7 @@ echo.
     "sdl3-image[core,png]:x64-mingw-static" ^
     tinyxml2:x64-mingw-static ^
     doctest:x64-mingw-static ^
+    nlohmann-json:x64-mingw-static ^
     miniaudio:x64-mingw-static --recurse
 
 if errorlevel 1 (
@@ -215,6 +217,7 @@ echo     - sdl3-image[png]
 echo     - tinyxml2
 echo     - doctest
 echo     - miniaudio
+echo     - nlohmann-json
 echo.
 
 "%VCPKG_ROOT%\vcpkg.exe" install ^
@@ -222,6 +225,7 @@ echo.
     "sdl3-image[core,png]:x64-windows-static" ^
     tinyxml2:x64-windows-static ^
     doctest:x64-windows-static ^
+    nlohmann-json:x64-windows-static ^
     miniaudio:x64-windows-static --recurse
 
 if errorlevel 1 (

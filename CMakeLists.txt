@@ -15,6 +15,7 @@ add_subdirectory(extern/eliott-math)
 add_subdirectory(extern/eliott-physics)
 add_subdirectory(extern/eliott-renderer)
 add_subdirectory(extern/eliott-tmx-parser)
+add_subdirectory(extern/eliott-animation)
 
 add_library(eliott-engine STATIC
     src/Engine.cpp
@@ -34,4 +35,5 @@ target_link_libraries(eliott-engine PUBLIC
     eliott-physics
     eliott-renderer
     eliott-tmx-parser
+    eliott-animation
 )

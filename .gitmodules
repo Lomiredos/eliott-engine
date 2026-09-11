@@ -20,3 +20,6 @@
 [submodule "extern/eliott-tmx-parser"]
 	path = extern/eliott-tmx-parser
 	url = https://github.com/Lomiredos/eliott-tmx-parser
+[submodule "extern/eliott-animation"]
+	path = extern/eliott-animation
+	url = https://github.com/Lomiredos/eliott-animation
