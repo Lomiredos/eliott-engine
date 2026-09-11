@@ -21,10 +21,17 @@ namespace ee
             m_targetFPS = _targetFPS;
         }
 
+<<<<<<< HEAD
 
         ee::SceneManager getSceneManager() const {return m_sceneManager;}
 
+=======
+>>>>>>> 27157eceba94e0a08fd9f079ae89eafaca03585f
         void run();
         void quit();
+
+        ee::renderer::Renderer& getRenderer();
+
+        ee::SceneId addScene(std::unique_ptr<ee::Scene> _scene);
     };
 }

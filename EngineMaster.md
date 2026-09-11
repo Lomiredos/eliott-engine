@@ -1,5 +1,5 @@
 # ENGINE MASTER — Fichier de suivi projet
-> Dernière mise à jour : 2026-02-26
+> Dernière mise à jour : 2026-03-02
 > SDL3 | C++20 | CMake | Git Submodules | vcpkg
 
 ---
@@ -20,7 +20,7 @@ Eliott, étudiant GTECH1 à Gaming Campus Lyon. Il apprend le développement de 
 - Architecture globale : ✅ définie
 - Setup VS Code + CMake + vcpkg : ✅ fonctionnel
 - Tous les submodules : ✅ terminés
-- **Tâche en cours** : eliott-engine 🟡 En cours (repo créé, CMakeLists.txt de base fonctionnel)
+- **Tâche en cours** : Phase 5 — mini-jeu de test avec map Tiled
 
 ### Ce qu'Eliott a déjà compris (bases théoriques validées)
 - ECS : Entity = juste un uint32_t (ID), Component = data only, System = logique
@@ -110,15 +110,18 @@ Eliott, étudiant GTECH1 à Gaming Campus Lyon. Il apprend le développement de 
 - **Rôle** : Moteur principal, assemble tous les modules
 - **Dépendances** : tous les submodules + SDL3
 - **Expose** : `Engine`, `Scene`, `SceneManager`, `Timer`
-- **Status** : 🟡 En cours
+- **Status** : ✅ Terminé
 - **Note** : CMakeLists.txt fonctionnel (`add_library STATIC`, sources `Engine.cpp`+`Timer.cpp`, `target_link_libraries PUBLIC`, `SDL3::SDL3`).
   Portabilité multi-compilateur via `CMakePresets.json` (preset `mingw` + preset `msvc`, `$env{VCPKG_ROOT}` pour chemin vcpkg).
-  Script `.bat` de setup école prévu (clone vcpkg, install dépendances, configure cmake).
+  Script `setup.bat` école créé (clone vcpkg, install dépendances, configure cmake).
   **Architecture implémentée** :
-  - `Engine` : possède `Renderer` (`unique_ptr`). Init/shutdown `InputManager` + `AudioManager` (singletons). GameLoop = `Engine::run()`. `quit()` à compléter (SDL_Quit).
+  - `Engine` : possède `Renderer` (`unique_ptr`). GameLoop = `Engine::run()`. `quit()` appelle `SDL_Quit()`.
+    Game loop : `InputManager::update()` appelé une fois par frame (poll SDL + update états clavier/souris/gamepad).
+    Retourne `false` sur `SDL_EVENT_QUIT` → `m_isActive = false` → sortie propre de la boucle.
+    `onEvent(SDL_Event&)` retiré de la game loop (InputManager drainerait la queue avant — double-polling).
   - `Scene` : classe de base abstraite. Possède `ee::ecs::World` + `ee::physics::PhysicsWorld`.
-    Méthodes virtuelles : `onEnter()`, `onExit()`, `onEvent(SDL_Event&)`, `onUpdate(float dt)`, `onRender()`.
-    `SDL_Event` exposé directement (pas wrappé). Destructeur `virtual`. Copy/move supprimés.
+    Méthodes virtuelles : `onEnter()`, `onExit()`, `onUpdate(float dt)`, `onRender()`.
+    Destructeur `virtual`. Copy/move supprimés.
   - `SceneManager` : `unordered_map<SceneId, unique_ptr<Scene>>`. `addScene(unique_ptr<Scene>)` retourne `SceneId`. `getCurrentScene()` retourne `Scene&`.
   - `Timer` : chrono sans dépendance externe (`<chrono>` + `<thread>`). `Start()`/`End()` retournent `float` ms. `Sleep(int ms)`.
   - Pas de classe `GameLoop` séparée → `Engine::run()` suffit.
@@ -192,15 +195,15 @@ Phase 3 — Modules ECS-dépendants
   ✅ eliott-physics (Quadtree + RigidBody + Collider)
 
 Phase 4 — Assemblage
-  🟡 eliott-engine
-    ✅ Repo créé, CMakeLists.txt (STATIC, submodules, PUBLIC links)
+  ✅ eliott-engine
+    ✅ Repo créé, CMakeLists.txt (STATIC, submodules, PUBLIC links, chemins non hardcodés)
     ✅ Isolation libs vérifiée (SDL3/miniaudio/tinyxml2 tous PRIVATE)
     ✅ Architecture Engine/Scene/SceneManager décidée
     ✅ .gitignore (build/, .vs/, out/, *.exe, *.a, *.o, *.obj)
-    🔴 CMakePresets.json (mingw + msvc, $env{VCPKG_ROOT})
-    🔴 Script setup école (.bat)
-    ✅ Scene.hpp (classe abstraite, virtual onEnter/onExit/onEvent/onUpdate/onRender)
-    ✅ Engine.hpp / Engine.cpp (run(), owns Renderer) — Engine::quit() à compléter
+    ✅ CMakePresets.json (mingw + msvc, $env{VCPKG_ROOT})
+    ✅ Script setup.bat école (clone vcpkg, install deps, cmake --preset mingw)
+    ✅ Scene.hpp (classe abstraite, virtual onEnter/onExit/onUpdate/onRender)
+    ✅ Engine.hpp / Engine.cpp (run(), owns Renderer, quit() = SDL_Quit)
     ✅ SceneManager.hpp
     ✅ Timer.hpp / Timer.cpp (chrono, Start/End/Sleep)
 
@@ -241,7 +244,9 @@ Phase 5 — Validation
 | Encapsulation SDL3 input | `ee::input::Key` et `ee::input::GamepadButton` (enums maison, SDL mappé en interne) ✅ |
 | Isolation libs | SDL3/SDL3_image/miniaudio/tinyxml2 tous `PRIVATE` dans leurs submodules ✅ |
 | Multi-compilateur | `CMakePresets.json` (2 presets : mingw + msvc) + `$env{VCPKG_ROOT}` pour portabilité |
-| Setup école | Script `.bat` (clone vcpkg + install deps + cmake configure) — à créer |
+| Setup école | Script `setup.bat` (clone vcpkg + install deps + cmake configure) ✅ |
+| Game loop SDL | `InputManager::update()` seul polling SDL (évite double-poll avec SDL_PollEvent) ✅ |
+| Fermeture fenêtre | `update()` retourne `false` sur SDL_EVENT_QUIT → `m_isActive = false` ✅ |
 
 ## 📋 Décisions en suspens
 
@@ -412,6 +417,20 @@ Aucune décision en suspens.
              pas une struct réelle — forward declaration impossible).
              Tout compile. Engine/Scene/SceneManager/Timer implémentés.
              Reste : CMakePresets.json, script .bat école, Engine::quit() (SDL_Quit + cleanup).
+
+[2026-03-02] Session 17 — eliott-engine finalisé. Phase 4 terminée.
+             CMakeLists.txt : chemins hardcodés supprimés (C:/Dev/vcpkg/...).
+             CMakePresets.json créé : 2 presets (mingw / msvc), toolchainFile via $env{VCPKG_ROOT},
+             binaryDir séparés (build/mingw, build/msvc), VCPKG_TARGET_TRIPLET par preset.
+             setup.bat créé : détecte VCPKG_ROOT, clone + bootstrap vcpkg si absent,
+             installe sdl3/sdl3-image/tinyxml2/doctest:x64-mingw-static, cmake --preset mingw.
+             Engine::run() corrigé : double-polling SDL supprimé (InputManager::update() seul
+             source de SDL_PollEvent), retour bool exploité (false = SDL_QUIT → m_isActive=false),
+             onEvent retiré de la game loop (InputManager draine la queue, rien à passer à la scène).
+             Concepts vus : CMakePresets.json version/structure/$env{VCPKG_ROOT}/binaryDir,
+             VCPKG_TARGET_TRIPLET par preset, errorlevel batch, SDL event queue FIFO
+             (double-polling = vol d'events), InputManager::update() comme unique poller.
+             Prochaine étape : Phase 5 — mini-jeu de test avec map Tiled.
 
 [2026-02-26] Session 15 — TextureManager + architecture Engine décidée.
              eliott-renderer : TextureManager ajouté (membre de Renderer, pas singleton).

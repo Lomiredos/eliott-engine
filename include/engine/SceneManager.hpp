@@ -6,6 +6,7 @@ namespace ee
 {
 
     using SceneId = size_t;
+    
     class SceneManager
     {
 

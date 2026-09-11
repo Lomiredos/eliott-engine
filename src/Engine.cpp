@@ -10,14 +10,12 @@ void ee::Engine::run()
     Timer T;
     float start = T.Start();
 
-    SDL_Event event;
     while (m_isActive)
     {
-        while (SDL_PollEvent(&event)){
-            if (event.type == SDL_EVENT_QUIT)
-                m_isActive = false;
-            m_sceneManager.getCurrentScene().onEvent(event);
-        }
+        
+        if (!ee::input::InputManager::getInstance().update())
+            m_isActive = false;
+            
         float end = T.End();
         float deltaTime = (end - start) / 1000.0f;
         start = T.Start();
@@ -41,3 +39,11 @@ void ee::Engine::quit()
     SDL_Quit();
 }
 
+ee::renderer::Renderer &ee::Engine::getRenderer()
+{
+    return *m_renderer;
+}
+ee::SceneId ee::Engine::addScene(std::unique_ptr<ee::Scene> _scene)
+{
+    return m_sceneManager.addScene(std::move(_scene));
+}
