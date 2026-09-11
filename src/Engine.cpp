@@ -22,7 +22,7 @@ void ee::Engine::run()
 
         m_sceneManager.getCurrentScene().onUpdate(deltaTime);
         m_renderer->Start();
-        m_sceneManager.getCurrentScene().onRender();
+        m_sceneManager.getCurrentScene().draw(*m_renderer);
         m_renderer->End();
 
         float diff = 1.0f / m_targetFPS - deltaTime;
