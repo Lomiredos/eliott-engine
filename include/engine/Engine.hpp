@@ -22,7 +22,7 @@ namespace ee
         }
 
 
-        ee::SceneManager getSceneManager() const {return m_sceneManager;}
+        ee::SceneManager& getSceneManager() const {return m_sceneManager;}
 
         void run();
         void quit();
