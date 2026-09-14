@@ -90,6 +90,16 @@ namespace ee
                 rs->render(m_world, _renderer, m_camera);
             onRender(_renderer);
         }
+
+    protected:
+        // _background = true : rendu en premier (derriere les sprites).
+        void addRenderSystem(std::shared_ptr<ee::renderer::RenderSystem> _rs, bool _background = false)
+        {
+            if (_background)
+                m_renderSystems.insert(m_renderSystems.begin(), _rs);
+            else
+                m_renderSystems.push_back(_rs);
+        }
     };
 
 }

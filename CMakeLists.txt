@@ -20,6 +20,7 @@ add_subdirectory(extern/eliott-animation)
 add_library(eliott-engine STATIC
     src/Engine.cpp
     src/Timer.cpp
+    src/TilemapRenderSystem.cpp
 )
 
 target_include_directories(eliott-engine PUBLIC
