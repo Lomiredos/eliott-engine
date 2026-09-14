@@ -28,14 +28,12 @@ bool ee::TilemapRenderSystem::load(const std::string &_mapPath,
     return false;
   m_map = *map;
 
-  std::string baseDir;
-  size_t slash = _mapPath.find_last_of("/\\");
-  if (slash != std::string::npos)
-    baseDir = _mapPath.substr(0, slash + 1);
-
+  // TmxParser resout deja m_path par rapport au dossier de la map
+  // (TmxParser::loadTileSet joint basePath/imageSource) -> pas besoin de
+  // reprefixer ici, sinon le dossier est duplique.
   m_textures.clear();
   for (size_t i = 0; i < m_map.m_tileset.size(); i++) {
-    std::string imgPath = baseDir + m_map.m_tileset[i].m_path;
+    std::string imgPath = m_map.m_tileset[i].m_path;
     std::string name = "tilemap:" + _mapPath + ":" + std::to_string(i);
     m_textures.push_back(_renderer.createTexture(name, imgPath.c_str()));
   }
