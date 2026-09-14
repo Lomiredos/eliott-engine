@@ -106,14 +106,24 @@ void ee::TilemapRenderSystem::spawnColliders(ee::ecs::World &_world)
 {
     for (const ee::tmx::TmxObjectGroup &group : m_map.m_objectGroup)
     {
+        // Seul le calque nomme "Collision" genere des colliders.
+        if (group.m_name != "Collision")
+            continue;
+
         for (const ee::tmx::TmxObject &obj : group.m_objects)
         {
             if (obj.m_width <= 0.0f || obj.m_height <= 0.0f)
                 continue;
 
             ee::ecs::EntityID e = _world.createEntity();
+
             // Tiled : (x,y) = coin haut-gauche -> on centre (ancre physique centree).
-            _world.addComponent(e, ee::math::Transform{{obj.m_x + obj.m_width * 0.5f, obj.m_y + obj.m_height * 0.5f}});
+            ee::math::Transform tr;
+            tr.position = {obj.m_x + obj.m_width * 0.5f, obj.m_y + obj.m_height * 0.5f};
+            // Angle stocke pour SAT plus tard. TODO: la physique AABB l'ignore encore
+            // -> un collider tourne se comporte comme sa boite droite jusqu'a SAT (OBB).
+            tr.rotation = obj.m_rotation;
+            _world.addComponent(e, tr);
 
             ee::physics::RigidBody body;
             body.isStatic = true;
