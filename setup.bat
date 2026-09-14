@@ -169,6 +169,7 @@ exit /b 1
 echo [*] Installation des dependances (x64-mingw-static)...
 echo     - sdl3
 echo     - sdl3-image[png]
+echo     - sdl3-ttf
 echo     - tinyxml2
 echo     - doctest
 echo     - miniaudio
@@ -178,6 +179,7 @@ echo.
 "%VCPKG_ROOT%\vcpkg.exe" install ^
     sdl3:x64-mingw-static ^
     "sdl3-image[core,png]:x64-mingw-static" ^
+    sdl3-ttf:x64-mingw-static ^
     tinyxml2:x64-mingw-static ^
     doctest:x64-mingw-static ^
     nlohmann-json:x64-mingw-static ^
@@ -214,6 +216,7 @@ goto fin
 echo [*] Installation des dependances (x64-windows-static)...
 echo     - sdl3
 echo     - sdl3-image[png]
+echo     - sdl3-ttf
 echo     - tinyxml2
 echo     - doctest
 echo     - miniaudio
@@ -223,6 +226,7 @@ echo.
 "%VCPKG_ROOT%\vcpkg.exe" install ^
     sdl3:x64-windows-static ^
     "sdl3-image[core,png]:x64-windows-static" ^
+    sdl3-ttf:x64-windows-static ^
     tinyxml2:x64-windows-static ^
     doctest:x64-windows-static ^
     nlohmann-json:x64-windows-static ^
