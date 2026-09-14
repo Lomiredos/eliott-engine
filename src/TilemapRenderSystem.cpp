@@ -1,11 +1,25 @@
 #include "engine/TilemapRenderSystem.hpp"
 
+#include "ecs/World.hpp"
 #include "renderer/Renderer.hpp"
 #include "renderer/Camera.hpp"
 #include "tmx/TmxParser.hpp"
 #include "math/Rect.hpp"
+#include "math/Transform.hpp"
+#include "physics/RigidBody.hpp"
+#include "physics/Collider.hpp"
 
 #include <string>
+#include <cstdint>
+#include <algorithm>
+
+namespace
+{
+    // Bits de flip Tiled dans le GID.
+    constexpr std::uint32_t FLIP_H = 0x80000000u;
+    constexpr std::uint32_t FLIP_V = 0x40000000u;
+    constexpr std::uint32_t GID_MASK = 0x1FFFFFFFu;
+}
 
 bool ee::TilemapRenderSystem::load(const std::string &_mapPath, ee::renderer::Renderer &_renderer)
 {
@@ -14,7 +28,6 @@ bool ee::TilemapRenderSystem::load(const std::string &_mapPath, ee::renderer::Re
         return false;
     m_map = *map;
 
-    // dossier de la map, pour resoudre les chemins d'image relatifs
     std::string baseDir;
     size_t slash = _mapPath.find_last_of("/\\");
     if (slash != std::string::npos)
@@ -34,20 +47,29 @@ bool ee::TilemapRenderSystem::load(const std::string &_mapPath, ee::renderer::Re
 
 void ee::TilemapRenderSystem::render(ee::ecs::World &_world, ee::renderer::Renderer &_renderer, ee::renderer::Camera &_camera)
 {
-    if (!m_loaded)
+    if (!m_loaded || m_map.m_tileWidth <= 0 || m_map.m_tileHeight <= 0)
         return;
 
     for (const ee::tmx::TmxLayer &layer : m_map.m_layers)
     {
-        for (int y = 0; y < layer.m_height; y++)
+        // Culling : on ne parcourt que les tuiles visibles dans la vue camera.
+        int startX = std::max(0, static_cast<int>(_camera.getX() / m_map.m_tileWidth));
+        int startY = std::max(0, static_cast<int>(_camera.getY() / m_map.m_tileHeight));
+        int endX = std::min(layer.m_width, static_cast<int>((_camera.getX() + _camera.getWidth()) / m_map.m_tileWidth) + 1);
+        int endY = std::min(layer.m_height, static_cast<int>((_camera.getY() + _camera.getHeight()) / m_map.m_tileHeight) + 1);
+
+        for (int y = startY; y < endY; y++)
         {
-            for (int x = 0; x < layer.m_width; x++)
+            for (int x = startX; x < endX; x++)
             {
-                int gid = layer.m_tiles[y * layer.m_width + x];
-                if (gid <= 0)
+                std::uint32_t raw = static_cast<std::uint32_t>(layer.m_tiles[y * layer.m_width + x]);
+                if ((raw & GID_MASK) == 0)
                     continue;
 
-                // tileset = celui au plus grand firstGid <= gid
+                bool flipX = (raw & FLIP_H) != 0;
+                bool flipY = (raw & FLIP_V) != 0;
+                int gid = static_cast<int>(raw & GID_MASK);
+
                 int ts = -1;
                 for (size_t i = 0; i < m_map.m_tileset.size(); i++)
                     if (m_map.m_tileset[i].m_firstGid <= gid &&
@@ -74,8 +96,32 @@ void ee::TilemapRenderSystem::render(ee::ecs::World &_world, ee::renderer::Rende
                     static_cast<float>(tileset.m_tileWidth),
                     static_cast<float>(tileset.m_tileHeight));
 
-                _renderer.Draw(*m_textures[ts], dst, src);
+                _renderer.Draw(*m_textures[ts], dst, src, 0.0f, 255, {}, flipX, flipY);
             }
+        }
+    }
+}
+
+void ee::TilemapRenderSystem::spawnColliders(ee::ecs::World &_world)
+{
+    for (const ee::tmx::TmxObjectGroup &group : m_map.m_objectGroup)
+    {
+        for (const ee::tmx::TmxObject &obj : group.m_objects)
+        {
+            if (obj.m_width <= 0.0f || obj.m_height <= 0.0f)
+                continue;
+
+            ee::ecs::EntityID e = _world.createEntity();
+            // Tiled : (x,y) = coin haut-gauche -> on centre (ancre physique centree).
+            _world.addComponent(e, ee::math::Transform{{obj.m_x + obj.m_width * 0.5f, obj.m_y + obj.m_height * 0.5f}});
+
+            ee::physics::RigidBody body;
+            body.isStatic = true;
+            _world.addComponent(e, body);
+
+            ee::physics::Collider col;
+            col.shape = ee::physics::AABB{obj.m_width, obj.m_height};
+            _world.addComponent(e, col);
         }
     }
 }

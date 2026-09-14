@@ -25,6 +25,10 @@ namespace ee
         bool load(const std::string &_mapPath, ee::renderer::Renderer &_renderer);
         void render(ee::ecs::World &_world, ee::renderer::Renderer &_renderer, ee::renderer::Camera &_camera) override;
 
+        // Cree une entite statique (Transform + RigidBody + Collider AABB) par
+        // objet des object layers -> murs/plateformes definis dans Tiled.
+        void spawnColliders(ee::ecs::World &_world);
+
         const ee::tmx::TmxMap &getMap() const { return m_map; }
     };
 }
